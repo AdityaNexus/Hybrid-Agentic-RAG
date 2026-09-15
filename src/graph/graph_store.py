@@ -153,5 +153,45 @@ class GraphStore:
             },
         )
 
+    def add_relationship(
+            self,
+            source_id : str,
+            relationship : str,
+            target_id : str,
+    )->None:
+        self.connection.execute(
+            """
+            MATCH (source:Entity {id: $source_id}),
+                (target:Entity {id: $target_id})
+            MERGE (source)-[r:RELATED_TO]->(target)
+            SET r.relationship = $relationship
+            """,
+            {
+                "source_id": source_id,
+                "relationship": relationship,
+                "target_id": target_id,
+            }
+        )
+    def find_entity(self, name: str) -> list[dict]:
+        result = self.connection.execute(
+            """
+            MATCH (e:Entity)
+            WHERE lower(e.name) = lower($name)
+            RETURN e.id, e.name, e.entity_type
+            """,
+            {
+                "name": name,
+            },
+        )
+
+        return [
+            {
+                "id": row[0],
+                "name": row[1],
+                "entity_type": row[2],
+            }
+            for row in result.get_all()
+        ]
+
     def close(self) -> None:
         self.connection.close()
