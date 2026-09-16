@@ -21,6 +21,7 @@ def test_graph_retrieval(tmp_path):
         "organization:openai",
         "developed",
         "product:gpt-4",
+        "chunk-1",
     )
 
     retriever = GraphRetriever(store)

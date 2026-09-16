@@ -59,8 +59,9 @@ class GraphStore:
             """
             CREATE REL TABLE IF NOT EXISTS RELATED_TO(
                 FROM Entity TO Entity,
-                relationship STRING
-            )
+                relationship STRING,
+                chunk_id STRING
+)
             """,
         ]
 
@@ -152,26 +153,30 @@ class GraphStore:
                 "entity_id": entity_id,
             },
         )
-
+        
     def add_relationship(
-            self,
-            source_id : str,
-            relationship : str,
-            target_id : str,
+        self,
+        source_id : str,
+        relationship : str,
+        target_id : str,
+        chunk_id : str,
     )->None:
         self.connection.execute(
-            """
-            MATCH (source:Entity {id: $source_id}),
-                (target:Entity {id: $target_id})
-            MERGE (source)-[r:RELATED_TO]->(target)
-            SET r.relationship = $relationship
-            """,
-            {
-                "source_id": source_id,
-                "relationship": relationship,
-                "target_id": target_id,
-            }
-        )
+        """
+        MATCH (source:Entity {id: $source_id}),
+              (target:Entity {id: $target_id})
+        MERGE (source)-[r:RELATED_TO]->(target)
+        SET r.relationship = $relationship,
+            r.chunk_id = $chunk_id
+        """,
+        {
+            "source_id": source_id,
+            "target_id": target_id,
+            "relationship": relationship,
+            "chunk_id": chunk_id,
+        },
+    )
+    
     def find_entity(self, name: str) -> list[dict]:
         result = self.connection.execute(
             """

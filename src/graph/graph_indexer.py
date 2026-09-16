@@ -58,10 +58,11 @@ class GraphIndexer:
                     continue
 
                 self.store.add_relationship(
-                    source_id=source_id,
-                    relationship=relationship.relationship,
-                    target_id=target_id,
-                )
+                source_id=source_id,
+                relationship=relationship.relationship,
+                target_id=target_id,
+                chunk_id=chunk.chunk_id,
+            )
 
     @staticmethod
     def _entity_id(

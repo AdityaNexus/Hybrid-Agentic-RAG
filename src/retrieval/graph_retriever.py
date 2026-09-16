@@ -10,6 +10,7 @@ class GraphResult:
     relationship: str
     related_entity: str
     related_entity_type: str
+    chunk_id: str
 
 
 class GraphRetriever:
@@ -30,7 +31,8 @@ class GraphRetriever:
                 source.entity_type,
                 r.relationship,
                 target.name,
-                target.entity_type
+                target.entity_type,
+                r.chunk_id
             """,
             {
                 "name": entity_name,
@@ -46,6 +48,7 @@ class GraphRetriever:
                 relationship=row[2],
                 related_entity=row[3],
                 related_entity_type=row[4],
+                chunk_id=row[5],
             )
             for row in rows
         ]
