@@ -14,7 +14,12 @@ class IngestionResult:
     skipped : bool
 
 
-def ingest(source:str,registry : DocumentRegistry)->IngestionResult |None:
+def ingest(
+    source: str,
+    registry: DocumentRegistry,
+    *,
+    force: bool = False,
+) -> IngestionResult | None:
 
     source_type, fingerprint = get_source_fingerprint(
         source
@@ -23,7 +28,8 @@ def ingest(source:str,registry : DocumentRegistry)->IngestionResult |None:
     existing = registry.get(source)
 
     if (
-        existing is not None
+        not force
+        and existing is not None
         and existing.content_hash == fingerprint
     ):
         return None

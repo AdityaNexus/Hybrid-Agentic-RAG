@@ -6,7 +6,7 @@ class ConversationMessage:
     content: str 
 
 @dataclass(slots=True)
-class COnversationMemory:
+class ConversationMemory:
     messages: list[ConversationMessage] = field(default_factory=list)
 
     def add(

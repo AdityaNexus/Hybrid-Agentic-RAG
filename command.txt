@@ -1,1 +1,1 @@
->llama-server.exe -m"Qwen3-1.7B-Q8_0.gguf" -c 4096 --device none
+>llama-server.exe -m "Qwen3-1.7B-Q8_0.gguf" -c 4096 --device none

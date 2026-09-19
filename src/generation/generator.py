@@ -8,7 +8,7 @@ from src.generation.prompts import SYSTEM_PROMPT, build_generation_prompt
 def answer(
         context: BuiltContext,
         *,
-        max_tokens: int | None = 512,
+    max_tokens: int | None = 128,
 )->str:
     prompt = build_generation_prompt(context)
 
@@ -23,7 +23,7 @@ def answer(
 def answer_stream(
     context: BuiltContext,
     *,
-    max_tokens: int = 512,
+    max_tokens: int = 128,
 ) -> Iterator[str]:
 
     prompt = build_generation_prompt(context)

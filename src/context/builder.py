@@ -3,7 +3,7 @@ from src.context.models import BuiltContext, ContextItem
 from src.retrieval.evidence import Evidence
 
 
-DEFAULT_CONTEXT_BUDGET = 3000
+DEFAULT_CONTEXT_BUDGET = 1200
 
 
 class ContextBuilder:

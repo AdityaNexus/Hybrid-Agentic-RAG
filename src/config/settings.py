@@ -4,7 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     llm_base_url: str = "http://localhost:8080/v1"
     llm_api_key: str = "local"
-    llm_model: str = "qwen"
+    llm_model: str = "Qwen3-1.7B-Q8_0.gguf"
+    llm_enable_thinking: bool = False
 
     data_dir: str = "data"
     documents_dir: str = "data/documents"
