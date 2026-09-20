@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from docling.document_converter import DocumentConverter
 
@@ -6,67 +7,85 @@ from src.ingestion.fingerprint import calculate_file_hash
 from src.ingestion.models import (
     CanonicalDocument,
     DocumentSection,
-    DocumentTable,
 )
 
 
 _converter = DocumentConverter()
 
 
-def parse_file(path: str | Path) -> CanonicalDocument:
-    path = Path(path).resolve()
+def _source_type(source: str) -> str:
+    if source.startswith(("http://", "https://")):
+        return "url"
 
-    if not path.exists():
-        raise FileNotFoundError(path)
+    return Path(source).suffix.lower().lstrip(".")
 
-    content_hash = calculate_file_hash(path)
 
-    result = _converter.convert(path)
+def _document_id(source: str, content_hash: str) -> str:
+    return content_hash
+
+
+def parse_source(source: str) -> CanonicalDocument:
+    if not source:
+        raise ValueError("Source cannot be empty.")
+
+    is_url = source.startswith(("http://", "https://"))
+
+    if not is_url:
+        path = Path(source)
+
+        if not path.exists():
+            raise FileNotFoundError(source)
+
+        if not path.is_file():
+            raise ValueError(f"Not a file: {source}")
+
+        content_hash = calculate_file_hash(path)
+        source_name = path.name
+
+    else:
+        parsed = urlparse(source)
+
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError("Only HTTP and HTTPS URLs are supported.")
+
+        if not parsed.netloc:
+            raise ValueError("Invalid URL.")
+
+        # URL content hash will be established after conversion.
+        content_hash = source
+        source_name = parsed.netloc
+
+    result = _converter.convert(
+        source,
+        raises_on_error=True,
+        max_num_pages=500,
+        max_file_size=50 * 1024 * 1024,
+    )
 
     document = result.document
 
-    sections: list[DocumentSection] = []
-    tables: list[DocumentTable] = []
+    markdown = document.export_to_markdown()
 
-    section_index = 0
+    sections = []
 
-    for item, _level in document.iterate_items():
-        item_type = type(item).__name__
-
-        if item_type == "TextItem":
-            text = item.text.strip()
-
-            if not text:
-                continue
-
-            sections.append(
-                DocumentSection(
-                    section_id=f"section_{section_index}",
-                    title=None,
-                    text=text,
-                )
+    if markdown.strip():
+        sections.append(
+            DocumentSection(
+                section_id="section_0",
+                title=None,
+                text=markdown.strip(),
             )
-
-            section_index += 1
-
-        elif item_type == "TableItem":
-            tables.append(
-                DocumentTable(
-                    table_id=f"table_{len(tables)}",
-                    content=item.export_to_markdown(),
-                )
-            )
+        )
 
     return CanonicalDocument(
-        document_id=content_hash,
-        source=str(path),
-        source_type=path.suffix.lower().lstrip("."),
-        title=path.stem,
+        document_id=_document_id(source, content_hash),
+        source=source,
+        source_type=_source_type(source),
+        title=source_name,
         content_hash=content_hash,
         sections=sections,
-        tables=tables,
         metadata={
-            "filename": path.name,
-            "extension": path.suffix.lower(),
+            "source": source,
+            "source_type": _source_type(source),
         },
     )
