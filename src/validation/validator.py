@@ -7,8 +7,17 @@ from src.validation.models import ClaimResult, ValidationResult
 
 def validate_answer(
     answer: str,
-    context: BuiltContext,
+    citations_or_context: str | BuiltContext,
+    context: BuiltContext | None = None,
 ) -> ValidationResult:
+    if context is None:
+        if not isinstance(citations_or_context, BuiltContext):
+            raise TypeError("context must be provided as a BuiltContext.")
+        context = citations_or_context
+    else:
+        if not isinstance(citations_or_context, str):
+            raise TypeError("citations must be provided as a string.")
+        answer = f"{answer} {citations_or_context}"
 
     if not answer.strip():
         return ValidationResult(

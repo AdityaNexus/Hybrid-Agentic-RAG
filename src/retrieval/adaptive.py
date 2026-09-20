@@ -32,14 +32,6 @@ class AdaptiveRetriever:
                 vector_top_k=5,
             )
 
-            confidence = self._confidence(evidence)
-
-            if confidence < 0.45:
-                web_results = self.web_retriever.search(
-                    query.normalized,
-                )
-                evidence.extend(web_to_evidence(web_results))
-
         elif route == QueryRoute.GRAPH:
             evidence = self.hybrid_retriever.search(
                 query.normalized,
@@ -61,6 +53,13 @@ class AdaptiveRetriever:
             evidence = web_to_evidence(web_results)
 
         confidence = self._confidence(evidence)
+
+        if confidence < 0.45 and route != QueryRoute.WEB:
+            web_results = self.web_retriever.search(
+                query.normalized,
+            )
+            evidence.extend(web_to_evidence(web_results))
+            confidence = self._confidence(evidence)
 
         return RetrievalDecision(
             evidence=evidence[:8],
@@ -87,8 +86,13 @@ class AdaptiveRetriever:
         weights = [0.6, 0.3, 0.1]
 
         confidence = 0.0
+        used_weights = 0.0
 
         for score, weight in zip(scores[:3], weights):
             confidence += score * weight
+            used_weights += weight
+            
+        if used_weights > 0:
+            confidence /= used_weights
 
         return confidence

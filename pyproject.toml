@@ -9,13 +9,16 @@ dependencies = [
     "ddgs>=9.16.0",
     "docling>=2.126.0",
     "duckduckgo-search>=8.1.1",
+    "fastapi>=0.141.1",
     "kuzu>=0.11.3",
     "langgraph>=1.2.11",
     "openai>=3.13.0",
     "pydantic>=2.13.5",
     "pydantic-settings>=2.15.0",
     "python-dotenv>=1.2.3",
+    "python-multipart>=0.0.32",
     "sentence-transformers>=6.0.1",
+    "uvicorn>=0.52.4",
 ]
 
 [dependency-groups]
@@ -26,3 +29,4 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]

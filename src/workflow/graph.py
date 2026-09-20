@@ -55,12 +55,18 @@ def cache_write_node(
     return state
 
 
-def route_node(state: RAGState):
+def route_node(
+    state: RAGState,
+    components: WorkflowComponents,
+):
 
     from src.query.router import route_query
 
+    embedding_model = components.adaptive_retriever.hybrid_retriever.vector_retriever.embedding_model
+
     state["route"] = route_query(
-        state["processed_query"]
+        state["processed_query"],
+        embedding_model,
     )
 
     return state
@@ -254,7 +260,10 @@ def build_graph(
 
     graph.add_node(
         "route",
-        route_node,
+        lambda state: route_node(
+            state,
+            components,
+        ),
     )
 
     graph.add_node(
@@ -367,7 +376,7 @@ def build_graph(
         "validate",
         validation_router,
         {
-            "valid": "cache_write",
+            "valid": "memory_write",
             "retry": "regenerate",
             "failed": END,
         },
