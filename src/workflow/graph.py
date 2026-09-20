@@ -286,15 +286,7 @@ def build_graph(
         generation_node,
     )
 
-    graph.add_node(
-        "validate",
-        validation_node,
-    )
-
-    graph.add_node(
-        "regenerate",
-        regeneration_node,
-    )
+    # Validation and regeneration nodes bypassed
 
     graph.add_node(
         "cache_write",
@@ -365,30 +357,7 @@ def build_graph(
 
     graph.add_edge(
         "generate",
-        "validate",
-    )
-
-    # -------------------------
-    # Validation decision
-    # -------------------------
-
-    graph.add_conditional_edges(
-        "validate",
-        validation_router,
-        {
-            "valid": "memory_write",
-            "retry": "regenerate",
-            "failed": END,
-        },
-    )
-
-    # -------------------------
-    # Regeneration loop
-    # -------------------------
-
-    graph.add_edge(
-        "regenerate",
-        "validate",
+        "memory_write",
     )
 
     # -------------------------

@@ -63,6 +63,8 @@ def preprocess_query(query: str) -> ProcessedQuery:
     temporal = any(
         word in TEMPORAL_WORDS
         for word in words
+    ) or any(
+        re.match(r"^20\d{2}$", word) for word in words
     )
 
     entities = _extract_entities(query)

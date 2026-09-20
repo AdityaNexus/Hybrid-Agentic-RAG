@@ -54,7 +54,7 @@ class AdaptiveRetriever:
 
         confidence = self._confidence(evidence)
 
-        if confidence < 0.45 and route != QueryRoute.WEB:
+        if confidence < 0.65 and route != QueryRoute.WEB:
             web_results = self.web_retriever.search(
                 query.normalized,
             )
@@ -64,7 +64,7 @@ class AdaptiveRetriever:
         return RetrievalDecision(
             evidence=evidence[:8],
             confidence=confidence,
-            needs_fallback=confidence < 0.45,
+            needs_fallback=confidence < 0.65,
         )
 
     @staticmethod
