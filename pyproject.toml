@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.141.1",
     "kuzu>=0.11.3",
     "langgraph>=1.2.11",
+    "laya[serve]>=0.4.1",
     "openai>=3.13.0",
     "pydantic>=2.13.5",
     "pydantic-settings>=2.15.0",

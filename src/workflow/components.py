@@ -5,6 +5,7 @@ from src.storage.cache import AnswerCache
 from src.storage.cache_manager import CacheManager
 from src.storage.document_registry import DocumentRegistry
 from src.context.memory import ConversationMemory
+from src.query.router import LLMQueryRouter
 
 @dataclass(slots=True)
 class WorkflowComponents:
@@ -13,3 +14,4 @@ class WorkflowComponents:
     cache: AnswerCache
     memory: ConversationMemory
     registry: DocumentRegistry
+    query_router: LLMQueryRouter | None = None

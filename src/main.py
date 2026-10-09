@@ -2,77 +2,12 @@ import logging
 
 from src.application import (
     RAGApplication,
-    index_documents_with_model,
+    create_application as build_application,
 )
-from src.context.memory import ConversationMemory
-from src.retrieval.adaptive import AdaptiveRetriever
-from src.retrieval.embeddings import EmbeddingModel
-from src.retrieval.graph_retriever import GraphRetriever
-from src.retrieval.hybrid_retriever import HybridRetriever
-from src.retrieval.vector_retriever import VectorRetriever
-from src.retrieval.web_retriever import WebRetriever
-from src.graph.graph_store import GraphStore
-from src.storage.cache import AnswerCache
-from src.storage.cache_manager import CacheManager
-from src.storage.chroma_store import ChromaStore
-from src.storage.document_registry import DocumentRegistry
-from src.workflow.components import WorkflowComponents
 
 
 def create_application():
-
-    embedding_model = EmbeddingModel()
-
-    print("Indexing documents...", flush=True)
-    index_documents_with_model(embedding_model)
-
-    chroma_store = ChromaStore()
-
-    vector_retriever = VectorRetriever(
-        embedding_model,
-        chroma_store,
-    )
-
-    graph_store = GraphStore()
-
-    graph_retriever = GraphRetriever(
-        graph_store,
-    )
-
-    hybrid_retriever = HybridRetriever(
-        vector_retriever,
-        graph_retriever,
-    )
-
-    web_retriever = WebRetriever()
-
-    adaptive_retriever = AdaptiveRetriever(
-        hybrid_retriever,
-        web_retriever,
-    )
-
-    registry = DocumentRegistry()
-
-    cache = AnswerCache()
-
-    cache_manager = CacheManager(
-        cache,
-        registry,
-    )
-
-    memory = ConversationMemory()
-
-    components = WorkflowComponents(
-        adaptive_retriever=adaptive_retriever,
-        cache_manager=cache_manager,
-        cache=cache,
-        registry=registry,
-        memory=memory,
-    )
-
-    return RAGApplication(
-        components
-    )
+    return build_application()
 
 
 def main():

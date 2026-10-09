@@ -105,5 +105,37 @@ class DocumentRegistry:
 
         self.connection.commit()
 
+    def get_all(self) -> list[DocumentRecord]:
+        cursor = self.connection.execute(
+            """
+            SELECT
+                source,
+                source_type,
+                content_hash,
+                document_id,
+                created_at,
+                updated_at
+            FROM documents
+            ORDER BY updated_at DESC
+            """
+        )
+        return [
+            DocumentRecord(
+                source=row[0],
+                source_type=row[1],
+                content_hash=row[2],
+                document_id=row[3],
+            )
+            for row in cursor.fetchall()
+        ]
+
+    def delete(self, source: str) -> bool:
+        cursor = self.connection.execute(
+            "DELETE FROM documents WHERE source = ?",
+            (source,)
+        )
+        self.connection.commit()
+        return cursor.rowcount > 0
+
     def close(self) -> None:
         self.connection.close()

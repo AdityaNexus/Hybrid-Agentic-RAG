@@ -29,6 +29,12 @@ def cache_node(
     components: WorkflowComponents,
 ):
 
+    # Web and temporal questions must be re-queried. Their answers can become
+    # stale even when the local document knowledge version is unchanged.
+    if state["route"].value == "web":
+        state["cache_hit"] = False
+        return state
+
     cached_answer = components.cache_manager.get(
         state["processed_query"].normalized
     )
@@ -46,6 +52,9 @@ def cache_write_node(
     state: RAGState,
     components: WorkflowComponents,
 ):
+
+    if state["route"].value == "web":
+        return state
 
     components.cache_manager.put(
         state["processed_query"].normalized,
@@ -67,6 +76,7 @@ def route_node(
     state["route"] = route_query(
         state["processed_query"],
         embedding_model,
+        components.query_router,
     )
 
     return state
@@ -305,40 +315,30 @@ def build_graph(
 )
 
 
-    # -------------------------
-    # Main flow
-    # -------------------------
-
     graph.add_edge(
         START,
         "preprocess",
     )
 
+    # Route before cache so freshness-sensitive queries can bypass stale
+    # database answers instead of ending the workflow early.
     graph.add_edge(
         "preprocess",
-        "cache",
+        "route",
     )
 
-    # -------------------------
-    # Cache decision
-    # -------------------------
+    graph.add_edge(
+        "route",
+        "cache",
+    )
 
     graph.add_conditional_edges(
         "cache",
         cache_router,
         {
             "cached": END,
-            "continue": "route",
+            "continue": "retrieve",
         },
-    )
-
-    # -------------------------
-    # Retrieval flow
-    # -------------------------
-
-    graph.add_edge(
-        "route",
-        "retrieve",
     )
 
     graph.add_edge(

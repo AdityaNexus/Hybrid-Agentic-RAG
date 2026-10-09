@@ -9,7 +9,7 @@ from src.config.settings import settings
 client = OpenAI(
     base_url=settings.llm_base_url,
     api_key=settings.llm_api_key,
-    timeout=None,
+    timeout=settings.llm_timeout_seconds,
     max_retries=0,
 )
 

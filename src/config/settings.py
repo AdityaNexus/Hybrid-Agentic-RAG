@@ -4,8 +4,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     llm_base_url: str = "http://localhost:8080/v1"
     llm_api_key: str = "local"
-    llm_model: str = "Qwen3-1.7B-Q8_0.gguf"
+    llm_model: str = "Qwen3-0.6B-Q8_0.gguf"
     llm_enable_thinking: bool = False
+    llm_timeout_seconds: float = 120.0
+    laya_base_url: str = "http://0.0.0.0:8100"
+    laya_api_key: str = "local"
+    laya_timeout_seconds: float = 10.0
 
     data_dir: str = "data"
     documents_dir: str = "data/documents"

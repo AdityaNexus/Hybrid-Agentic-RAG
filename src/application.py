@@ -18,6 +18,7 @@ from src.graph.graph_store import GraphStore
 from src.storage.indexer import ChromaIndexer
 from src.workflow.components import WorkflowComponents
 from src.workflow.graph import build_graph
+from src.query.router import LLMQueryRouter
 
 
 def create_application() -> "RAGApplication":
@@ -58,6 +59,7 @@ def create_application() -> "RAGApplication":
         cache=cache,
         registry=registry,
         memory=memory,
+        query_router=LLMQueryRouter(),
     )
 
     return RAGApplication(components)
