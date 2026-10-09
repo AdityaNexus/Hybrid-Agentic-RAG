@@ -1,21 +1,46 @@
-from src.ingestion.ingest import ingest
+import logging
+
+from src.application import (
+    RAGApplication,
+    create_application as build_application,
+)
 
 
-def main() -> None:
-    result = ingest("data/documents/AdityaResume.pdf")
+def create_application():
+    return build_application()
 
-    print(f"Document: {result.document.title}")
-    print(f"Document ID: {result.document.document_id}")
 
-    print(f"\nChunks: {len(result.chunks)}")
+def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s %(name)s: %(message)s",
+    )
 
-    for chunk in result.chunks[:5]:
-        print("\n---")
-        print(f"ID: {chunk.chunk_id}")
-        print(f"Index: {chunk.chunk_index}")
-        print(f"Tokens: {chunk.token_count}")
-        print(f"Page: {chunk.page_number}")
-        print(chunk.text[:500])
+    app = create_application()
+
+    print("Hybrid Agentic RAG")
+    print("Type 'exit' to quit.")
+
+    while True:
+
+        query = input("\nYou: ").strip()
+
+        if query.lower() == "exit":
+            break
+
+        if not query:
+            continue
+
+        try:
+            result = app.ask(query)
+        except Exception as error:
+            print(f"\nRequest failed: {error}")
+            continue
+
+        print("\nAssistant:")
+        print(result["answer"])
+
+        print("\nCache hit:", result.get("cache_hit"))
 
 
 if __name__ == "__main__":

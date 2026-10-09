@@ -1,18 +1,36 @@
 from pathlib import Path
 
-from src.ingestion.detector import detect_file_type
 
-def detect_source(source:str)->str:
-    if source.startswith("http://") or source.startswith("https://"):
+SUPPORTED_EXTENSIONS = {
+    ".pdf": "pdf",
+    ".docx": "docx",
+    ".txt": "text",
+    ".md": "markdown",
+    ".html": "html",
+    ".htm": "html",
+}
+
+
+def detect_source(source: str) -> str:
+    if not source:
+        raise ValueError("Source cannot be empty.")
+
+    if source.startswith(("http://", "https://")):
         return "url"
 
     path = Path(source)
+
     if not path.exists():
-        raise FileNotFoundError(f"source path does not exist: {source}")
+        raise FileNotFoundError(source)
 
     if not path.is_file():
-        raise ValueError(f"source path is not a file: {source}")
+        raise ValueError(f"Not a file: {source}")
 
-    return detect_file_type(source)
+    extension = path.suffix.lower()
 
-    
+    if extension not in SUPPORTED_EXTENSIONS:
+        raise ValueError(
+            f"Unsupported file type: {extension}"
+        )
+
+    return SUPPORTED_EXTENSIONS[extension]
